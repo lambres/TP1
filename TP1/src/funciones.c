@@ -7,7 +7,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#ifdef __linux__
+#define SO "Linux"
+#define LIMPIAR_CONSOLA system("clear");
+#define LIMPIAR_BUFFER __fpurge(stdin);
+#include <stdio_ext.h>
+#elif _WIN32
+#define SO "Windows"
+#define LIMPIAR_CONSOLA system("cls");
+#define LIMPIAR_BUFFER fflush(stdin);
+#define LIMPIAR_SALIDA	setbuf(stdout,NULL);
+#elif __APPLE__
+#define SO "OSX"
+#define LIMPIAR_CONSOLA system("clear");
+#define LIMPIAR_BUFFER fpurge(stdin);
+#endif
 #include "funciones.h"
 
 static float calculoDiferencia(float valor1, float valor2);
@@ -156,7 +170,13 @@ int utn_getNumeroInt(int* pResultado, char* mensaje, char* mensajeError, int min
 		{
 			reintentos--;
 			printf("%s",mensaje);
-			fpurge(stdin);
+			#ifdef __linux__
+				LIMPIAR_BUFFER
+			#elif _WIN32
+				LIMPIAR_BUFFER
+			#elif __APPLE__
+			LIMPIAR_BUFFER
+			#endif
 			if(getInt(&bufferInt) == 0)
 			{
 				if(bufferInt >= minimo && bufferInt <= maximo)
@@ -217,7 +237,13 @@ static int myGets(char* cadena, int longitud)
 {
 	if(cadena != NULL && longitud >0 && fgets(cadena,longitud,stdin)==cadena)
 	{
-		fpurge(stdin); // LINUX-> ____fpurge o WIN-> fflush o MAC-> __fpurge
+		#ifdef __linux__
+			LIMPIAR_BUFFER
+		#elif _WIN32
+			LIMPIAR_BUFFER
+		#elif __APPLE__
+		LIMPIAR_BUFFER
+		#endif
 		if(cadena[strlen(cadena)-1] == '\n')
 		{
 			cadena[strlen(cadena)-1] = '\0';

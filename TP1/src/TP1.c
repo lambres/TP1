@@ -12,6 +12,26 @@
 #include <stdlib.h>
 #include "funciones.h"
 
+#ifdef __linux__
+#define SO "Linux"
+#define LIMPIAR_CONSOLA system("clear");
+#define LIMPIAR_BUFFER __fpurge(stdin);
+#include <stdio_ext.h>
+#elif _WIN32
+#define SO "Windows"
+#define LIMPIAR_CONSOLA system("cls");
+#define LIMPIAR_BUFFER fflush(stdin);
+#define LIMPIAR_SALIDA	setbuf(stdout, NULL);
+#elif __APPLE__
+#define SO "OSX"
+#define LIMPIAR_CONSOLA system("clear");
+#define LIMPIAR_BUFFER fpurge(stdin);
+#endif
+
+
+
+
+
 #define DEBITO 0
 #define CREDITO 1
 #define BTC 2
@@ -20,6 +40,9 @@
 #define PRECIO_FORZADO_LT 159339
 #define DISTANCIA_FORZADA 7090
 int main(void) {
+	#ifdef _WIN32
+		LIMPIAR_SALIDA
+	#endif
 	int opcion;
 	int cantidadKilometros;
 	cantidadKilometros = 0;
@@ -46,9 +69,15 @@ int main(void) {
 		printf("4. Informar Resultados\n");
 		printf("5. Carga forzada de datos\n");
 		printf("6. Salir\n");
-		fpurge(stdin);
+		#ifdef __linux__
+			LIMPIAR_BUFFER
+		#elif _WIN32
+			LIMPIAR_BUFFER
+		#elif __APPLE__
+		LIMPIAR_BUFFER
+		#endif
 		//solicito opcion del menu para interactuar
-		utn_getNumeroInt(&opcion, "Ingrese opción deseada\n", "Opcion invalida\n", 1, 6, 2);
+		utn_getNumeroInt(&opcion, "Ingrese opcion deseada\n", "Opcion invalida\n", 1, 6, 2);
 		switch (opcion)
 		{
 		case 1: // solicitar cantidad de kilometros
